@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './showProducts.css';
 import ProductElement from '../productElement/ProductElement';
-// import { products, colors } from '../../data/TestUI';
+
 
 const ShowProducts = ({ products, colors }) => {
   const [isActiveLoad, setIsActiveLoad] = useState(false);
@@ -20,6 +20,7 @@ const ShowProducts = ({ products, colors }) => {
               id={product.id}
               sku_id={product.sku_id}
               productName={product.productName}
+              productShortName={product.productShortName}
               cateName={product.cateName}
               price={product.price}
               image={product.image}

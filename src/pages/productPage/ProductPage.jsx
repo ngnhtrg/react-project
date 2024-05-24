@@ -4,7 +4,7 @@ import './productPage.css';
 import { Link, useLocation, useParams } from "react-router-dom";
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/Footer';
-import { Products } from '../../data/Products';
+import { BASE_URL, CART_URL } from '../../data/Urls';
 import { breadCrumbsDisplay } from '../../data/Categories';
 import SizeSelector from '../../components/sizeSelector/SizeSelector';
 import Order from '../../data/Order';
@@ -12,9 +12,8 @@ import ShowProducts from '../../components/showProducts/ShowProducts';
 import SliderBar from '../../components/sliderBar/SliderBar';
 import Page404 from '../page404/Page404';
 import { useNavigate } from 'react-router-dom';
-// import axios from 'axios';
+import Cookies from 'js-cookie';
 
-const BASE_URL = 'https://support.mollywlove.ru/api';
 
 
 const sizes = [
@@ -43,22 +42,26 @@ const ProductPage = () => {
     
     // ------------------------------------------
     // const productskuId = '1000S';
-    const productskuId = currentId;
+    const productId = currentId;
+    const [productskuId, setProductSkuId] = useState('');
     const [productData, setProductData] = useState('');
     const [currentSize, setCurrentSize] = useState('');
     const [productSkus, setProductSkus] = useState([]);
     const [colorList, setColorList] = useState([]);
+
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const response = await fetch(`${BASE_URL}/product_sku_details/${productskuId}/`);
+            const response = await fetch(`${BASE_URL}/product_details/${productId}/`);
             const data = await response.json();
             setProductData(data);
             setCurrentSize(data.size);
+            setProductSkuId(data.id)
             // Extract all_product_skus and convert to list of dictionaries
             if (data && data.all_product_skus) {
               const skusList = data.all_product_skus.map((sku) => ({
                 id: sku.id,
+                productId: sku.product_id,
                 ru_color: sku.ru_color,
                 color: sku.color,
                 size: sku.size,
@@ -97,19 +100,6 @@ const ProductPage = () => {
             );
         });
 
-    // Image display
-    // const handleSmallImageClick = (event) => {
-    //     const clickedImage = event.target;
-    //     const largeImage = document.querySelector('.product-image__large');
-
-    //     if (clickedImage.classList.contains('small-product-image')) {
-    //         largeImage.src = clickedImage.src;
-
-    //         const smallImages = document.querySelectorAll('.small-product-image');
-    //         smallImages.forEach(image => image.classList.remove('selected'));
-    //         clickedImage.classList.add('selected');
-    //     }
-    // };
 
     const handleSmallImageClick = (event) => {
         const clickedImageContainer = event.target.closest('.small-product-image');
@@ -125,7 +115,6 @@ const ProductPage = () => {
     };
 
     
-    // var currentSize = productData.size;
     const currentColorName = productData.ru_color;
     const currentColor = productData.en_color;
     const currentStatus = productData.status;
@@ -141,38 +130,65 @@ const ProductPage = () => {
     // Quantity Button: 
     const [productQuantity, setProductQuantity] = useState(0);
 
+    const [quantity, setQuantity] = useState(0);
+
     const increase = () => {
         const newQuantity = productQuantity + 1;
         setProductQuantity(newQuantity);
+        setQuantity(newQuantity);
     }
 
     const decrease = () => {
         const newQuantity = productQuantity - 1;
         setProductQuantity(newQuantity);
+        setQuantity(newQuantity);
     }
 
     // Add to cart button:
-    const [quantity, setQuantity] = useState(0);
+    
 
-    const addToCart = () => {
-        const newQuantity = productQuantity;
-        setQuantity(newQuantity);
-        Order.numOrders += productQuantity;
-    }
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'React POST Request Example' }),
+        credentials: 'include'
+    };
 
+    const addToCart = async () => {
+        try {
+            const session_id = Cookies.get('name');
+            const res = await fetch(`${CART_URL}/add_to_cart/${productskuId}/${session_id}/${quantity}`, requestOptions);
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            
+            const data = await res.json();
+            console.log('Response:', data);
+            // Cookies.set('name', data.session_key);
+            if (typeof session_id === 'undefined') {
+                Cookies.set('name', data.session_key);
+            }
+
+            // setCurrentSize(Cookies.get('name'));
+
+            // Handle response data as needed
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+        }
+      };
     const status = 200;
 
     const navigate = useNavigate()
     const getIDWithFixSize = (color) => {
-        const clickId = productSkus.find(item => item.size === currentSize && item.color === color).id;
+        const clickId = productSkus.find(item => item.size === currentSize && item.color === color).productId;
         navigate(`${url}/${clickId}`);
         navigate(0);
     }
 
     const getIDWithFixColor = (size) => {
-        const clickId = productSkus.find(item => item.color === currentColor && item.size === size).id;
-        // navigate(`${url}/${clickId}`);
+        const sku_id = productSkus.find(item => item.color === currentColor && item.size === size).id;
         setCurrentSize(size);
+        setProductSkuId(sku_id);
     }
 
     return (
@@ -209,10 +225,13 @@ const ProductPage = () => {
                     <div className='product-information__container'>
                         <div className='page-product-name-price'>
                             <h3 className='page-product-name'> {productData.name}</h3>
-                            <p className='page-product-price'>{productData.price}</p>
+                            <p className='page-product-price'>{productData.price} RUB</p>
+                        </div>
+                        <div className='page-product-code'>
+                            <p className='page-product-code'>Артикул: {productData.product_id}</p>
                         </div>
                         <div className='page-product-short-description'>
-                            <p>Трансформирующие цвета, смелый текстиль и уникальные принты, натуральные волокна и высокое качество исполнения остаются на переднем плане.</p>
+                            <p className='page-product-short-description'>Описание: {productData.description}</p>
                         </div>
 
 
@@ -295,7 +314,7 @@ const ProductPage = () => {
                                     <button className='increase-btn' onClick={increase}>+</button> :
                                     <button className='increase-btn'>+</button>}
                             </div>
-                            {quantity < productData.quantity ?
+                            {(quantity <= productData.quantity && quantity > 0) ?
                                 <div className='add-to-cart' onClick={addToCart} style={{ cursor: 'pointer' }}>
                                     {/* <i className='uil uil-shopping-cart-alt page-cart__icon'></i> */}
                                     <p className='cart__text'>В Корзину</p>

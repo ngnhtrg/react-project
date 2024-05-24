@@ -5,12 +5,9 @@ import Footer from '../../components/footer/Footer';
 import BreadCrumbs from '../../components/breadCrumbs/BreadCrumbs';
 import ShowProducts from '../../components/showProducts/ShowProducts';
 import Page404 from '../page404/Page404';
-import {products, colors } from '../../data/TestUI';
+import { colors } from '../../data/TestUI';
+import { BASE_URL } from '../../data/Urls';
 import { Link, useLocation, useParams } from "react-router-dom";
-
-
-const BASE_URL = 'https://support.mollywlove.ru/api';
-
 
 const DetailedCategory = () => {
     const status = 200;
@@ -27,13 +24,15 @@ const DetailedCategory = () => {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const response = await fetch(`${BASE_URL}/products_by_category/${category}/`);
+            const url = (category === 'all' || category === 'new') ? `${BASE_URL}/products/`: `${BASE_URL}/products_by_category/${category}/`;
+            const response = await fetch(url);
             const data = await response.json();
             if (data && Array.isArray(data)) {
                 const tempPr = data.map((item) => ({
                 id: item.id,
                 sku_id: item.id_sku,
                 productName: item.name,
+                productShortName: item.short_name,
                 image: item.img_base,
                 image_hover: item.img_hover,
                 price: item.price,

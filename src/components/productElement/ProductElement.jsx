@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { categories } from '../../data/Categories';
 
 
-const ProductElement = ({id, sku_id, productName, cateName, price, image, image_hover, colors, tag}) => {
+const ProductElement = ({id, sku_id, productName, productShortName, cateName, price, image, image_hover, colors, tag}) => {
     const [isHovered, setIsHovered] = useState(false);
     const findUrlsByCateName = (categories, cateName) => {
         const matchedCategories = categories.filter(category => category.cateName === cateName);
@@ -29,7 +29,7 @@ const ProductElement = ({id, sku_id, productName, cateName, price, image, image_
 
             <div className='element-image__container'>
                 <div className='product-tag'>{tag}</div>
-                <Link to={`${url}/${cateName}/${sku_id}`} onClick={scrollToTop}>
+                <Link to={`${url}/${cateName}/${id}`} onClick={scrollToTop}>
                     <img
                         className="product__img"
                         src={isHovered ? image_hover : image}
@@ -38,13 +38,13 @@ const ProductElement = ({id, sku_id, productName, cateName, price, image, image_
                         onMouseLeave={() => setIsHovered(false)}
                     />
                 </Link>
-                <button className='element-add-to-cart' onClick={(event) => { event.stopPropagation(); addToCart(); }}>В Корзину</button>
+                {/* <button className='element-add-to-cart' onClick={(event) => { event.stopPropagation(); addToCart(); }}>В Корзину</button> */}
             </div>
 
             <div className='element-product__container'>
-                <Link to={`${url}/${cateName}/${sku_id}`} onClick={scrollToTop} className='element-product__name'>{productName}</Link>
+                <Link to={`${url}/${cateName}/${sku_id}`} onClick={scrollToTop} className='element-product__name'>{productShortName.toUpperCase()}</Link>
             </div>
-            <p className='element-product__price'>{price}</p>
+            <p className='element-product__price'>{price} RUB</p>
             <div className="element-color-dots-container">
                 {colors.map(colorObj => (
                     <Link

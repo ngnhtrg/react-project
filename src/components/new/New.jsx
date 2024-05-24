@@ -10,11 +10,17 @@ import SliderBar from '../sliderBar/SliderBar';
 const New = () => {
     /* ------------------------ Get the current location ------------------------ */
     const [isActive, setIsActive] = useState(true);
-
-    const handleClick = () => {
+    const [category, setCategory] = useState("All");
+    const default_cat = "All";
+    
+    const handleClick = (cate) => {
         setIsActive(!isActive);
+        // setCategory(cate);
     };
-
+    const chooseCate = (cate) => {
+        // setIsActive(!isActive);
+        setCategory(cate);
+    };
     const settings = {
         dots: false,
         infinite: true,
@@ -39,7 +45,6 @@ const New = () => {
         ]
     };
 
-
     return (
         <>
             <section className='new'>
@@ -52,7 +57,7 @@ const New = () => {
                             </button>
                         </div>
                         {displayInNew.map((item) => (
-                            <div className={isActive ? 'cat-item__container' : 'cat-item__container'} onClick={handleClick}>
+                            <div className={isActive ? 'cat-item__container' : 'cat-item__container'} onClick={() => chooseCate(item.cateName)}>
                                 <button className='cat__item'>
                                     <p>
                                         {item.display}
@@ -61,7 +66,7 @@ const New = () => {
                             </div>
                         ))}
                     </ul>
-                    <SliderBar cateName="All" />
+                    <SliderBar cateName={category} />
                     {/* <ShowProducts /> */}
                 </div>
             </section >

@@ -23,6 +23,8 @@ function App() {
           <Route path="/clothes/:category/:productId" element={<ProductPage />} />
           <Route path="/:category/:productId" element={<ProductPage />} />
           <Route path="/clothes/:category" element={<DetailedCategory />} />
+          <Route path="/all/" element={<DetailedCategory />} />
+          <Route path="/new/" element={<DetailedCategory />} />
           <Route path="/:category" element={<DetailedCategory />} />
           <Route path="/404" element={<Page404 />} />
         </Routes>

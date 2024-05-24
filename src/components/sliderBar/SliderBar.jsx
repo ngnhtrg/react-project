@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { products, colors } from '../../data/TestUI';
+import { BASE_URL } from '../../data/Urls';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ProductElement from '../productElement/ProductElement';
 import { Link, useLocation, useParams } from "react-router-dom";
-
-const BASE_URL = 'https://support.mollywlove.ru/api';
-
 
 const SliderBar = ({cateName}) => {
     const settings = {
@@ -45,6 +42,7 @@ const SliderBar = ({cateName}) => {
                 id: item.id,
                 sku_id: item.id_sku,
                 productName: item.name,
+                productShortName: item.short_name,
                 image: item.img_base,
                 image_hover: item.img_hover,
                 price: item.price,
@@ -73,6 +71,7 @@ const SliderBar = ({cateName}) => {
                             id={product.id}
                             sku_id={product.sku_id}
                             productName={product.productName}
+                            productShortName={product.productShortName}
                             cateName={product.cateName}
                             price={product.price}
                             image={product.image}
